@@ -1,27 +1,28 @@
+// developed by abhi velaga
+// github.com/avelaga/drum-led
+
 #include <FastLED.h>
 
 #define NUM_LEDS 150
-#define DATA1 7
+#define LED_PIN 7
+#define PIR_PIN 3
+
 float brightness = 0;
 float hue = 0;
 float inc = 0;
 float hueInc = .3;
 float incSpeed;
-int inputPin = 3;
 int pirState = LOW;
 int val = 0;
 CRGB leds[NUM_LEDS];
 
 void setup() {
-  LEDS.addLeds<WS2812, DATA1, RGB>(leds, NUM_LEDS);
+  LEDS.addLeds<WS2812, LED_PIN, RGB>(leds, NUM_LEDS);
   LEDS.setBrightness(255);
-  pinMode(inputPin, INPUT);
+  pinMode(PIR_PIN, INPUT);
   incSpeed = random(4, 6) / 100.0;
   clearAll();
-  Serial.begin(9600);
 }
-
-void fadeOut() {}
 
 void clearAll() {
   for (int i = 0; i < NUM_LEDS; i++) {
@@ -30,29 +31,28 @@ void clearAll() {
   }
 }
 
+// led code to run when motion is detected
 void animate() {
   creepBootUp();
   holdWhite();
-  //  fadeOut();
 }
 
 void readMotion() {
-  val = digitalRead(inputPin);
+  val = digitalRead(PIR_PIN);
   if (val == HIGH) {
-    if (pirState == LOW) {
-      Serial.println("Motion detected!");
-      animate();
+    if (pirState == LOW) { // motion detected
+      animate(); // run led patterns
       pirState = HIGH;
     }
   } else {
-    if (pirState == HIGH) {
-      Serial.println("Motion ended!");
-      clearAll();
+    if (pirState == HIGH) { // no motion
+      clearAll(); // turns led strip off
       pirState = LOW;
     }
   }
 }
 
+// do that gradual white fill from the middle
 void creepBootUp() {
   float start = NUM_LEDS / 2;
   float bright = 0;
@@ -81,7 +81,7 @@ void holdWhite() {
   float start = 0;
   float localHue = start;
   start += .7;
-  for (int x = 0; x < 60; x++) { // run for 400 frames
+  for (int x = 0; x < 60; x++) {
     for (int i = 0; i < NUM_LEDS; i++) {
       if (x == 59) {
         leds[i] = CRGB( 255, 255, 255);
@@ -95,31 +95,6 @@ void holdWhite() {
   }
 }
 
-
-void toColor() {
-  float g = 255;
-  float b = 255;
-  float changeSpeed = .6;
-  while (g > 0 ) {
-    g -= changeSpeed;
-    b -= changeSpeed;
-    for (int i = 0; i < NUM_LEDS; i++) {
-      leds[i] = CRGB( 255, g, b);
-    }
-    FastLED.show();
-  }
-}
-
 void loop() {
   readMotion();
-  //  hue = inc;
-  //  inc += incSpeed;
-  //  Serial.println(hue);
-  //
-  //  for (int i = 0; i < NUM_LEDS; i++) {
-  //    leds[i] = CHSV(hue, 255, 255);
-  //    hue += .5; // incremenration of hues in the strip
-  //  }
-  //
-  //  FastLED.show();
 }
