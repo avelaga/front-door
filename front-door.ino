@@ -1,5 +1,6 @@
 // developed by abhi velaga
-// github.com/avelaga/drum-led
+// github.com/avelaga
+// abhi.work
 
 #include <FastLED.h>
 
